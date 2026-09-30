@@ -1,14 +1,4 @@
-import sys
-import importlib.util
-
-# ---------------------------------------------------------
-# 0. openpyxl 자동 설치 및 체크 (내장 모듈 활용)
-# ---------------------------------------------------------
-if importlib.util.find_spec("openpyxl") is None:
-    import subprocess
-
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "openpyxl"])
-
+import subprocess
 import openpyxl
 import streamlit as st
 import pandas as pd
@@ -46,7 +36,7 @@ def reset_date_callback():
 
 
 # ---------------------------------------------------------
-# 3. 커스텀 CSS (파스텔톤 UI & 스타일링)
+# 3. 커스텀 CSS (파스텔톤 UI & 테이블 스타일링)
 # ---------------------------------------------------------
 st.markdown("""
 <style>
@@ -237,7 +227,7 @@ st.session_state.today_date = selected_date_input
 st.sidebar.button("🔄 오늘 날짜로 리셋", on_click=reset_date_callback, use_container_width=True)
 
 # ---------------------------------------------------------
-# 6. 데이터 전처리
+# 6. 데이터 전처리 (안전성 강화)
 # ---------------------------------------------------------
 df = st.session_state.df_data.copy()
 
@@ -247,8 +237,20 @@ for col in REQUIRED_COLS:
 df = df[REQUIRED_COLS]
 
 DATE_COLS = ["입사일", "사원", "주임", "대리", "과장", "차장", "부장"]
+
+
+# 날짜 컬럼을 안전하게 YYYY-MM-DD 문자열로 정제하는 함수
+def format_date_str(val):
+    if pd.isna(val) or str(val).strip() in ["", "nan", "None", "NaT"]:
+        return ""
+    parsed = pd.to_datetime(val, errors='coerce')
+    if pd.notnull(parsed):
+        return parsed.strftime('%Y-%m-%d')
+    return ""
+
+
 for col in DATE_COLS:
-    df[col] = pd.to_datetime(df[col], errors='coerce').dt.strftime('%Y-%m-%d').fillna("")
+    df[col] = df[col].apply(format_date_str)
 
 df = df.fillna("")
 
