@@ -4,6 +4,11 @@ import numpy as np
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 import io
+try:
+    import openpyxl
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "openpyxl"])
+    import openpyxl
 
 # ---------------------------------------------------------
 # 1. 페이지 설정
