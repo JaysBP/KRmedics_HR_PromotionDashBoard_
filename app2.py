@@ -4,6 +4,7 @@ import numpy as np
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 import io
+import subprocess
 try:
     import openpyxl
 except ImportError:
