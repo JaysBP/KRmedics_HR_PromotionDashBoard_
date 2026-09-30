@@ -1,15 +1,21 @@
+import sys
+import importlib.util
+
+# ---------------------------------------------------------
+# 0. openpyxl 자동 설치 및 체크 (내장 모듈 활용)
+# ---------------------------------------------------------
+if importlib.util.find_spec("openpyxl") is None:
+    import subprocess
+
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "openpyxl"])
+
+import openpyxl
 import streamlit as st
 import pandas as pd
 import numpy as np
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 import io
-import subprocess
-try:
-    import openpyxl
-except ImportError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "openpyxl"])
-    import openpyxl
 
 # ---------------------------------------------------------
 # 1. 페이지 설정
@@ -40,7 +46,7 @@ def reset_date_callback():
 
 
 # ---------------------------------------------------------
-# 3. 커스텀 CSS (부드러운 파스텔톤 & 깔끔한 테이블)
+# 3. 커스텀 CSS (파스텔톤 UI & 스타일링)
 # ---------------------------------------------------------
 st.markdown("""
 <style>
@@ -207,14 +213,14 @@ if uploaded_file is not None:
     if uploaded_file.name.endswith('.csv'):
         raw_df = pd.read_csv(uploaded_file)
     else:
-        raw_df = pd.read_excel(uploaded_file)
+        raw_df = pd.read_excel(uploaded_file, engine='openpyxl')
     st.session_state.df_data = raw_df
 elif st.session_state.df_data is None:
-    st.session_state.df_data = pd.read_excel(io.BytesIO(sample_excel))
+    st.session_state.df_data = pd.read_excel(io.BytesIO(sample_excel), engine='openpyxl')
 
 # 초기화 버튼
 if st.sidebar.button("🗑️ 업로드 데이터 초기화"):
-    st.session_state.df_data = pd.read_excel(io.BytesIO(sample_excel))
+    st.session_state.df_data = pd.read_excel(io.BytesIO(sample_excel), engine='openpyxl')
     st.session_state.filter_status = "all"
     st.rerun()
 
@@ -247,7 +253,7 @@ for col in DATE_COLS:
 df = df.fillna("")
 
 # ---------------------------------------------------------
-# 7. 개별 행 다중 조건 세트 측정 (정확한 필터링용)
+# 7. 개별 행 다중 조건 세트 측정 (필터링용)
 # ---------------------------------------------------------
 RANK_ORDER = ["사원", "주임", "대리", "과장", "차장", "부장"]
 today_dt = pd.to_datetime(st.session_state.today_date)
@@ -257,10 +263,6 @@ next_year_num = today_dt.year + 1
 
 
 def analyze_row_conditions(row):
-    """
-    한 인원이 가지고 있는 모든 조건을 set 형태로 반환합니다.
-    (예: {'expired', 'within_3m'}) -> 3개월 이내 탭과 경과됨 탭 모두에서 검색 가능해짐
-    """
     tags = set()
     current_rank = str(row.get("직위", "")).strip()
 
