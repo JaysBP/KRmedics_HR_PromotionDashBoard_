@@ -9,23 +9,6 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-
-      - name: Install requests
-        run: pip install requests
-
-      - name: Ping Streamlit App
+      - name: Send Ping Request
         run: |
-          python -c "
-          import requests
-          url = 'https://krmedics-hrpromotiondashboard.streamlit.app/'
-          headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-          try:
-              res = requests.get(url, headers=headers, allow_redirects=True, timeout=30)
-              print(f'Status Code: {res.status_code}')
-          except Exception as e:
-              print(f'Error occurred: {e}')
-          "
+          curl -sL --cookie-jar cookies.txt -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://krmedics-hrpromotiondashboard.streamlit.app/" > /dev/null
