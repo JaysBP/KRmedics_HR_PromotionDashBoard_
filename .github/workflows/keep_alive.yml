@@ -2,9 +2,8 @@ name: Keep Streamlit Alive
 
 on:
   schedule:
-    # 매 5시간마다 실행 (UTC 기준)
     - cron: '0 */5 * * *'
-  workflow_dispatch: # Actions 탭에서 수동 실행 허용
+  workflow_dispatch:
 
 jobs:
   ping:
@@ -12,4 +11,4 @@ jobs:
     steps:
       - name: Send Ping Request
         run: |
-          curl -sL -A "Mozilla/5.0" "https://krmedics-hrpromotiondashboard.streamlit.app" > /dev/null
+          curl -sL --max-redirs 10 -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://your-app-name.streamlit.app" > /dev/null
