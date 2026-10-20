@@ -1,0 +1,15 @@
+name: Keep Streamlit Alive
+
+on:
+  schedule:
+    # 매 5시간마다 실행 (UTC 기준)
+    - cron: '0 */5 * * *'
+  workflow_dispatch: # Actions 탭에서 수동 실행 허용
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Ping Request
+        run: |
+          curl -sL -A "Mozilla/5.0" "https://krmedics-hrpromotiondashboard.streamlit.app" > /dev/null
